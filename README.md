@@ -1,8 +1,8 @@
-# Cas12g F616N Molecular Dynamics Workflow
+# Cas12g Molecular Dynamics Workflow
 
 This repository contains a reproducible GROMACS workflow for all-atom molecular dynamics simulations of the Cas12g F616N mutant protein.
 
-The workflow is designed for a **protein-only** system prepared from `Cas12g_predict_F616N.pdb`, using:
+The workflow is designed for a **protein-only** system prepared from `Cas12g.pdb`, using:
 
 - GROMACS 2024.5
 - AMBER99SB-ILDN force field
