@@ -1,0 +1,33 @@
+define       = -DPOSRES_CA
+
+integrator   = md
+dt           = 0.002
+nsteps       = 500000       ; 1 ns
+continuation = yes
+
+cutoff-scheme = Verlet
+coulombtype  = PME
+rcoulomb     = 1.0
+rvdw         = 1.0
+pbc          = xyz
+
+constraints  = h-bonds
+constraint_algorithm = lincs
+
+tcoupl       = V-rescale
+tc-grps      = Protein Water_and_ions
+tau_t        = 0.1   0.1
+ref_t        = 300   300
+
+pcoupl       = C-rescale
+pcoupltype   = isotropic
+tau_p        = 5.0
+ref_p        = 1.0
+compressibility = 4.5e-5
+refcoord_scaling = com
+
+gen_vel      = no
+
+nstxout-compressed = 500
+nstenergy   = 1000
+nstlog      = 1000
