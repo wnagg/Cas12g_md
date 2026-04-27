@@ -1,0 +1,36 @@
+define       = -DPOSRES_CA
+
+integrator   = md
+dt           = 0.002
+nsteps       = 50000        ; 100 ps
+continuation = no
+
+cutoff-scheme = Verlet
+coulombtype  = PME
+rcoulomb     = 1.0
+rvdw         = 1.0
+pbc          = xyz
+
+constraints  = h-bonds
+constraint_algorithm = lincs
+
+tcoupl       = V-rescale
+tc-grps      = Protein Water_and_ions
+tau_t        = 0.1   0.1
+ref_t        = 300   300
+
+; Annealing from 50 K to 300 K during 100 ps
+annealing           = single single
+annealing_npoints   = 2      2
+annealing_time      = 0 100  0 100
+annealing_temp      = 50 300 50 300
+
+pcoupl       = no
+
+gen_vel      = yes
+gen_temp     = 50
+gen_seed     = -1
+
+nstxout-compressed = 500
+nstenergy   = 500
+nstlog      = 500
