@@ -1,0 +1,38 @@
+# Large GROMACS outputs
+*.xtc
+*.trr
+*.tng
+*.edr
+*.cpt
+*.gro
+*.tpr
+*.log
+*.out
+*.nohu p.out
+*.pid
+
+# Generated topology / temporary files
+topol.top
+*.itp
+*.ndx
+#*#
+*~
+*.bak
+*.backup
+step*.pdb
+
+# Local input structures; keep unpublished structures private unless intended
+*.pdb
+!examples/*.pdb
+
+# Python/cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Local work directories
+md_*/
+workdir/
+logs/
+.done/
+analysis_output/
