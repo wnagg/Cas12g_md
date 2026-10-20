@@ -2,40 +2,26 @@
 
 ## Molecular dynamics simulations
 
-All-atom molecular dynamics simulations were performed for Cas12g and selected mutants, including F616N, R184S, V623Q and V623S, using GROMACS. The initial structures were protein-only PDB files with water molecules, exogenous ligands and hydrogen atoms removed. Protein topologies were generated using the AMBER99SB-ILDN force field, and the TIP3P water model was used for solvation. Each system was placed in a dodecahedral periodic water box, neutralized with counterions and supplemented with NaCl to a final concentration of 0.15 M.
+All-atom molecular dynamics simulations were performed for Cas12g WT and the F616N, R184S, V623Q and V623S single-point mutants using GROMACS. Each mutant was generated independently from the same WT PDB by PyMOL side-chain mutagenesis; the WT coordinates were not overwritten. Mutation identities and residue numbering were checked before topology generation. Protein-only structures were parameterized with the AMBER99SB-ILDN force field and TIP3P water model. Each system was placed in a dodecahedral periodic box, neutralized and supplemented with NaCl to 0.15 M.
 
-Energy minimization was performed using the steepest-descent algorithm until the maximum force was below 1000 kJ mol^-1 nm^-1. The systems were then equilibrated by 100 ps NVT equilibration, followed by 1 ns NPT equilibration with C-alpha positional restraints and 500 ps unrestrained NPT equilibration. Production simulations were designed for 500 ns with a 2 fs integration time step. The temperature and pressure were maintained at 300 K and 1 bar, respectively. Bonds involving hydrogen atoms were constrained using the LINCS algorithm, and long-range electrostatic interactions were treated using the particle mesh Ewald method. GPU acceleration was used for production simulations when available.
+Energy minimization used steepest descent. Equilibration comprised 100 ps NVT, 1 ns NPT with C-alpha positional restraints and 500 ps unrestrained NPT. Temperature and pressure were maintained at 300 K and 1 bar. Bonds involving hydrogen atoms were constrained using LINCS, and long-range electrostatics were treated with particle-mesh Ewald. Production MD used a 2 fs timestep and GPU acceleration when supported. The default panel configuration uses 100 ns per system for exploratory screening; replace this with the actual duration of the trajectories used in the final analysis. Short screening runs alone should not be described as demonstrating equilibrium convergence.
 
-## Trajectory preprocessing
+## Trajectory preprocessing and RMSD, Rg and RMSF analyses
 
-Prior to trajectory analysis, periodic boundary artifacts were removed and proteins were centered. The first frame of each production trajectory was extracted as the reference structure. All frames were least-squares fitted based on backbone atoms before RMSD-related analyses. Therefore, backbone RMSD values represent conformational deviations relative to the initial production conformation.
-
-## RMSD, Rg and RMSF analyses
-
-Backbone RMSD was calculated relative to the first frame of the production trajectory. The radius of gyration was calculated to evaluate protein compactness. Per-residue C-alpha RMSF was calculated using trajectory frames after 50 ns of production simulation to reduce the influence of early equilibration. Trajectory data were analyzed or resampled at a 50 ps interval for comparative visualization and RMSD-Rg free-energy landscape construction.
+Periodic-boundary artifacts were removed, proteins were centered, and frames were least-squares fitted using backbone atoms. The first frame of each production trajectory was used as the RMSD reference. Backbone RMSD and radius of gyration (Rg) were calculated throughout the trajectory. Per-residue C-alpha RMSF was calculated after excluding the early production segment; the default analysis starts at 20 ns. The default trajectory output interval was 50 ps. Report the actual interval and analysis window used.
 
 ## Residue-pair distance analysis
 
-Distances between selected residue pairs were monitored throughout the production trajectories to evaluate mutation-associated changes in local interaction networks. The analyzed residue pairs included R661-R224, D513-E655 and D513-K728. Distances were extracted from PBC-corrected, centered and backbone-fitted trajectories.
+Distances between R661-R224, D513-E655 and D513-K728 were calculated from PBC-corrected, centered and backbone-fitted trajectories. The implemented selections measure the R661 guanidinium group to R224 CZ, the D513 and E655 carboxylate groups, and the D513 carboxylate group to K728 NZ. Confirm residue numbering against the processed topology if the input structure is renumbered or has missing residues.
 
-## Free-energy landscape analysis
+## RMSD-Rg free-energy landscape analysis
 
-Free-energy landscapes were constructed using backbone RMSD and Rg as reaction coordinates. The two-dimensional probability distribution of RMSD and Rg was converted into relative free energy according to:
+The two-dimensional probability distribution of backbone RMSD and Rg was converted to relative free energy using Delta G = -kBT ln P, where P is the probability of an occupied histogram bin, kB is the Boltzmann constant and T is 300 K. The minimum observed free energy was normalized to zero. Empty bins were masked as unobserved rather than treated as measured free-energy values. The comparison panel uses common RMSD/Rg axes and a shared color scale. These landscapes are descriptive estimates; their apparent basins and relative depths should not be interpreted as converged thermodynamics without adequate sampling and convergence checks.
 
-```text
-Delta G = -kBT ln P
-```
+## Initial structure quality control
 
-where P is the probability of each conformational state, kB is the Boltzmann constant and T was set to 300 K. The minimum free-energy state was normalized to 0 kJ/mol. Unvisited or low-probability regions were assigned to the highest free-energy level and displayed in deep red. Publication-style two-dimensional and three-dimensional FEL plots were generated using Python with NumPy, Pandas and Matplotlib. Major low-energy basins were identified from local minima on the RMSD-Rg FEL maps and labeled as S1, S2 and S3.
+Because mutants are constructed from WT coordinates by side-chain mutagenesis, initial global C-alpha/backbone RMSDs after alignment are expected to be nearly zero. These values verify residue numbering and preservation of the starting backbone; they are not evidence of mutation-induced backbone rearrangement.
 
-## Recommended wording
+## Machine-specific reporting
 
-Production simulations were designed for 500 ns with a 2 fs integration time step. Trajectory frames were analyzed or resampled at a 50 ps interval for RMSD-Rg free-energy landscape construction. The first production frame was used as the reference structure for backbone RMSD calculation.
-
-Before submission, verify and insert the exact GROMACS version, CPU model and GPU model using:
-
-```bash
-gmx --version
-nvidia-smi
-lscpu
-```
+Record the exact GROMACS version, CPU and GPU using gmx --version, nvidia-smi and lscpu. Report the actual production duration, sampling interval, analysis window and number of independent replicas. Do not describe a 100-ns screening run as a 500-ns production run.
