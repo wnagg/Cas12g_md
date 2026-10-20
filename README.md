@@ -37,7 +37,7 @@ WORKDIR contains structures/ (WT and mutants), runs/<variant>/ (separate GROMACS
 The initial-model QC checks mutation identity and fitted C-alpha/backbone RMSD. Since mutations are made by side-chain mutagenesis on WT coordinates, near-zero backbone RMSD is expected; this is construction QC, not evidence of a mutation-induced global structural change. Empty FEL bins are masked as unobserved.
 
 Monitor progress with:
-    tail -f /path/to/WORKDIR/runs/WT/logs/md500.out
+    tail -f /path/to/WORKDIR/runs/WT/logs/10_md500.out
     watch -n 60 /path/to/WORKDIR/runs/WT/md_monitor.sh
 
 Rerun the same command and config to resume incomplete stages/checkpoints. Do not change production duration, timestep or starting structure inside an existing work directory.
