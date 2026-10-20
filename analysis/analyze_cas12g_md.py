@@ -126,7 +126,7 @@ def analyze(workdir,tag,gmx,deffnm,begin,temp,bins):
         (out/f"summary_{tag}.txt").write_text(f"System: {tag}\nDuration_ns: {duration:.3f}\nFrames: {len(metrics)}\nRMSD reference: first production frame\nAnalysis start ns: {start:.3f}\nFEL bins: {nb}\n")
     print(f"[OK] {tag} analysis complete: {out}")
 
-def compare(root,out,variants):
+def compare(root,out,variants,begin,temp):
     out.mkdir(parents=True,exist_ok=True); data={}
     for tag in variants:
         p=Path(root)/"runs"/tag/"analysis"/f"metrics_{tag}.csv"
@@ -148,8 +148,11 @@ def compare(root,out,variants):
     xr=(float(xs.min()),float(xs.max())); yr=(float(ys.min()),float(ys.max())); nb=max(5,min(30,int(np.sqrt(min(len(df) for df in data.values())/2))))
     grids=[]
     for tag,df in data.items():
+        duration=float(df.time_ns.max()); start=min(float(begin),max(0.0,duration*0.2),max(0.0,duration-1e-6))
+        df=df[df.time_ns>=start]
+        if len(df)<10: raise RuntimeError(f'Too few frames after analysis start for {tag}')
         H,xe,ye=np.histogram2d(df.RMSD_nm,df.Rg_nm,bins=nb,range=[xr,yr]); P=H/H.sum(); fe=np.full_like(H,np.nan); occ=H>0
-        fe[occ]=-8.314462618e-3*300*np.log(P[occ]); fe[occ]-=np.nanmin(fe[occ]); grids.append((tag,xe,ye,fe))
+        fe[occ]=-8.314462618e-3*float(temp)*np.log(P[occ]); fe[occ]-=np.nanmin(fe[occ]); grids.append((tag,xe,ye,fe))
     vals=np.concatenate([g[3][np.isfinite(g[3])] for g in grids]); vmax=max(5,float(np.percentile(vals,95)))
     fig,axs=plt.subplots(2,3,figsize=(13,8),constrained_layout=True); axs=axs.ravel(); mesh=None
     for ax,(tag,xe,ye,fe) in zip(axs,grids):
@@ -174,5 +177,5 @@ def main():
         analyze(a.workdir,a.tag,a.gmx,a.deffnm,a.begin_ns,a.temp_k,a.fel_bins)
     else:
         if not a.root: p.error("--root required")
-        compare(a.root,a.outdir,a.variants)
+        compare(a.root,a.outdir,a.variants,a.begin_ns,a.temp_k)
 if __name__=="__main__": main()
